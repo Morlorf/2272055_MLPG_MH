@@ -423,44 +423,54 @@
 %======================================================================
 \section{Architecture Summary}
 
-\begin{frame}[t]{Technical Architecture Recap (1/2)}
-  \small
-  \begin{itemize}
-    \item \textbf{Data ingestion}
-      \begin{itemize}
-        \item Ingestion-Service polls the simulator, normalizes payloads into \texttt{UnifiedEvent}, and publishes them to RabbitMQ.
-      \end{itemize}
-    \item \textbf{Processing and rules}
-      \begin{itemize}
-        \item Processor-Service consumes events, updates the state cache, evaluates rules and arbitrates actuator commands.
-        \item Rules and their metadata are persisted in SQLite.
-      \end{itemize}
-    \item \textbf{Exposure to operators}
-      \begin{itemize}
-        \item API-Gateway exposes WebSocket and REST APIs to the frontend.
-        \item Frontend displays live data, histories, rule configuration, conflicts and actuators in a single dashboard.
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[t]{Technical Architecture Recap (2/2)}
-  \centering
-  \includegraphics[width=1\textwidth]{architecture_diagram.png}
-\end{frame}
+%\begin{frame}[t]{Technical Architecture Recap (1/2)}
+%  \small
+%  \begin{itemize}
+%    \item \textbf{Data ingestion}
+%      \begin{itemize}
+%        \item Ingestion-Service polls the simulator, normalizes payloads into \texttt{UnifiedEvent}, and publishes them to RabbitMQ.
+%      \end{itemize}
+%    \item \textbf{Processing and rules}
+%      \begin{itemize}
+%        \item Processor-Service consumes events, updates the state cache, evaluates rules and arbitrates actuator commands.
+%        \item Rules and their metadata are persisted in SQLite.
+%      \end{itemize}
+%    \item \textbf{Exposure to operators}
+%      \begin{itemize}
+%        \item API-Gateway exposes WebSocket and REST APIs to the frontend.
+%        \item Frontend displays live data, histories, rule configuration, conflicts and actuators in a single dashboard.
+%      \end{itemize}
+%  \end{itemize}
+%\end{frame}
 
 \begin{frame}[t]{Example Scenario: Automatic Cooling}
   \small
   \begin{enumerate}
-    \item Simulator reports a high \texttt{greenhouse\_temperature} reading.
+    \item Simulator reports a \textbf{high} \texttt{greenhouse\_temperature} reading.
     \item Ingestion-Service polls the value, builds a \texttt{UnifiedEvent} and publishes it to RabbitMQ.
     \item Processor-Service consumes the event; the rule engine finds a rule such as:
-      \begin{quote}
-        IF greenhouse temperature \(>\) threshold THEN set cooling fan to ON.
-      \end{quote}
+    \[\texttt{IF greenhouse\_temperature > threshold THEN set cooling\_fan to ON}\]
     \item The rule triggers and emits a command to the arbitrator; if no conflicting rule asks for OFF, the arbitrator sets the cooling fan to ON.
     \item The actuator command is sent to the simulator and an \texttt{actuator\_command} event is published.
     \item Gateway forwards events via WebSocket; dashboard updates sensors, rule status, and cooling fan tile.
   \end{enumerate}
+\end{frame}
+
+\begin{frame}[t]{Example Scenario: Manual Cooling}
+  \small
+  \begin{enumerate}
+     \item The operator clicks the cooling fan actuator tile on the dashboard to manually set its state to ON.
+     \item The frontend sends a POST request to the API Gateway's actuator endpoint, specifying the desired state.
+     \item The API Gateway forwards the actuator command to the Processor-Service via REST.
+     \item The arbitrator evaluates the command alongside any active automation rules, resolving conflicts if present.
+     \item Processor Service communicates with the simulator to change the actuator state.
+     \item The updated actuator state is broadcast via WebSocket by the API Gateway; the dashboard reflects the new status and records the manual action in the actuator history.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[t]{Technical Architecture Recap}
+  \centering
+  \includegraphics[width=1\textwidth]{architecture_diagram.png}
 \end{frame}
 
 %======================================================================
@@ -471,7 +481,7 @@
   {\Huge \textbf{Thank You!}} \\
   \vspace{1cm}
   \small \textcolor{marsRed}{MLPG} \\
-  \footnotesize Mars Operations -- Microservices-based IoT Platform
+  \footnotesize Mars Habitat -- Automation Dashboard
 \end{frame}
 
 \end{document}
