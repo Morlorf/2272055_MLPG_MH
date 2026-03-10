@@ -1,3 +1,7 @@
-**/*.tex
-booklets/output/
 .DS_Store
+
+booklets/output/
+lab.tex
+lab.nav
+lab.snm
+lab.synctex.gz
