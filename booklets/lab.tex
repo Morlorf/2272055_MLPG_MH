@@ -372,38 +372,6 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[t]{New Automation Rule Layout (Mockup)}
-    \centering
-    \includegraphics[width=0.4\textwidth]{mockup_new_rule.png}
-\end{frame}
-
-\begin{frame}[t]{Automation Rules Panel (Mockup)}
-  \small
-  \begin{itemize}
-    \item \textbf{Rule cards}
-      \begin{itemize}
-        \item Display the rule name and a readable IF--THEN sentence based on the internal condition.
-        \item Include a toggle switch to enable/disable the rule (\texttt{is\_active}).
-        \item Provide \emph{Edit} and \emph{Delete} buttons; delete is confirmed with a second click.
-      \end{itemize}
-    \item \textbf{Create / Edit modal}
-      \begin{itemize}
-        \item Guides the user through selecting:
-          \begin{itemize}
-            \item sensor (and metric, for multi-metric sensors);
-            \item comparison operator (\(<, \leq, ==, >, \geq\));
-            \item threshold value;
-            \item target actuator and desired state.
-          \end{itemize}
-        \item Shows a live textual preview of the resulting rule.
-      \end{itemize}
-    \item \textbf{Conflicts indication}
-      \begin{itemize}
-        \item Rules involved in active conflicts are highlighted and display a warning icon with a tooltip.
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
 \begin{frame}[t]{Actuators Panel (Mockup)}
   \small
   \begin{itemize}
@@ -420,10 +388,42 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}[t]{Automation Rules Panel (Mockup)}
+  \small
+  \begin{itemize}
+    \item \textbf{Rule cards}
+      \begin{itemize}
+        \item Display the rule name and a readable IF--THEN sentence based on the internal condition.
+        \item Include a toggle switch to enable/disable the rule (\texttt{is\_active}).
+        \item Provide \emph{Edit} and \emph{Delete} buttons; delete is confirmed with a second click.
+      \end{itemize}
+    \item \textbf{Create / Edit modal}
+    \item \textbf{Conflicts indication}
+      \begin{itemize}
+        \item Rules involved in active conflicts are highlighted and display a warning icon with a tooltip.
+      \end{itemize}
+      \begin{itemize}
+        \item Guides the user through selecting:
+          \begin{itemize}
+            \item sensor (and metric, for multi-metric sensors);
+            \item comparison operator (\(<, \leq, =, >, \geq\));
+            \item threshold value;
+            \item target actuator and desired state.
+          \end{itemize}
+        \item Shows a live textual preview of the resulting rule.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]{New Automation Rule Layout (Mockup)}
+    \centering
+    \includegraphics[width=0.4\textwidth]{mockup_new_rule.png}
+\end{frame}
+
 %======================================================================
 \section{Architecture Summary}
 
-\begin{frame}[t]{Technical Architecture Recap}
+\begin{frame}[t]{Technical Architecture Recap (1/2)}
   \small
   \begin{itemize}
     \item \textbf{Data ingestion}
@@ -441,6 +441,11 @@
         \item Frontend displays live data, histories, rule configuration, conflicts and actuators in a single dashboard.
       \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Technical Architecture Recap (2/2)}
+  \centering
+  \includegraphics[width=1\textwidth]{architecture_diagram.png}
 \end{frame}
 
 \begin{frame}[t]{Example Scenario: Automatic Cooling}
