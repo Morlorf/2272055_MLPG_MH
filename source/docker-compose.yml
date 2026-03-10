@@ -1,0 +1,110 @@
+services:
+  # ── Mars IoT Simulator (DO NOT MODIFY) ──────────────────────
+  simulator:
+    image: mars-iot-simulator:multiarch_v1
+    container_name: mars-simulator
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mars-net
+
+  # ── RabbitMQ Message Broker ─────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: mars-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - mars-net
+
+  # ── Ingestion Service ───────────────────────────────────────
+  ingestion-service:
+    build:
+      context: ./source/ingestion-service
+      dockerfile: Dockerfile
+    container_name: mars-ingestion
+    env_file:
+      - .env
+    depends_on:
+      simulator:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+    networks:
+      - mars-net
+
+  # ── Processor Service (Rule Engine + State Manager) ─────────
+  processor-service:
+    build:
+      context: ./source/processor-service
+      dockerfile: Dockerfile
+    container_name: mars-processor
+    env_file:
+      - .env
+    depends_on:
+      simulator:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - processor-data:/app/data
+    ports:
+      - "8002:8000"
+    networks:
+      - mars-net
+
+  # ── API Gateway (WebSocket + REST Proxy) ────────────────────
+  api-gateway:
+    build:
+      context: ./source/api-gateway
+      dockerfile: Dockerfile
+    container_name: mars-gateway
+    env_file:
+      - .env
+    environment:
+      PROCESSOR_SERVICE_URL: http://processor-service:8000
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      processor-service:
+        condition: service_started
+    ports:
+      - "8003:8000"
+    networks:
+      - mars-net
+
+  # ── Frontend Dashboard ──────────────────────────────────────
+  frontend:
+    build:
+      context: ./source/frontend
+      dockerfile: Dockerfile
+    container_name: mars-frontend
+    depends_on:
+      - api-gateway
+    ports:
+      - "3000:80"
+    networks:
+      - mars-net
+
+volumes:
+  processor-data:
+
+networks:
+  mars-net:
+    driver: bridge
